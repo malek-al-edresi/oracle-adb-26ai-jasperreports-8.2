@@ -187,8 +187,4 @@ AI Vector Search • Flutter • DevOps Tools
 This README was structured to fit **GitHub Standards**, **enterprise
 documentation**, and professional presentation.
 
-If you want: 
-✅ A version with badges\
-✅ Architecture diagram as an image\
-✅ English + Arabic dual-language README\
-Just tell me.
+
