@@ -61,8 +61,8 @@ tier), ideal for development, learning, and integration.
 
 ### **Environment Variables**
 
--   `WORKLOAD_TYPE=ATP`\
--   `WALLET_PASSWORD=Malek7788Wallet`\
+-   `WORKLOAD_TYPE=ATP`
+-   `WALLET_PASSWORD=Malek7788Wallet`
 -   `ADMIN_PASSWORD=Malek7788Adb`
 
 > ⚠️ **Always change these before production use.**
@@ -83,11 +83,11 @@ JDBC or REST.
 
 ### **Features**
 
--   Web-based report designer\
--   Role-based access control\
--   Advanced scheduling system\
--   Integration with Oracle ADB\
--   Export to multiple formats\
+-   Web-based report designer
+-   Role-based access control
+-   Advanced scheduling system
+-   Integration with Oracle ADB
+-   Export to multiple formats
 -   REST API for automation
 
 ### **Typical Ports**
