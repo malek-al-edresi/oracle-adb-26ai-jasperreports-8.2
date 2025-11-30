@@ -43,10 +43,10 @@ tier), ideal for development, learning, and integration.
 
 ### **Features**
 
--   Autonomous Transaction Processing (ATP) workload\
--   Secure wallet-based authentication\
--   Exposed ports for SQL, REST, and Mongo APIs\
--   Full data persistence using named Docker volumes\
+-   Autonomous Transaction Processing (ATP) workload
+-   Secure wallet-based authentication
+-   Exposed ports for SQL, REST, and Mongo APIs
+-   Full data persistence using named Docker volumes
 -   Auto-restart for long-running development sessions
 
 ### **Exposed Ports**
@@ -69,8 +69,8 @@ tier), ideal for development, learning, and integration.
 
 ### **Persistent Volumes**
 
--   `oracle-adb-data` → Database storage\
--   `oracle-adb-logs` → Diagnostic logs\
+-   `oracle-adb-data` → Database storage
+-   `oracle-adb-logs` → Diagnostic logs
 -   `/home/eng-malek/oracle_wallet` → Oracle Wallet mount
 
 ------------------------------------------------------------------------
@@ -167,17 +167,17 @@ docker logs -f oracle-adb-26ai
 
 ## 📝 **Best Practices**
 
--   Use **strong passwords** and rotate wallet files regularly.\
--   Never expose database ports directly on production networks.\
--   Use Nginx or Traefik if exposing JasperReports externally.\
+-   Use **strong passwords** and rotate wallet files regularly.
+-   Never expose database ports directly on production networks.
+-   Use Nginx or Traefik if exposing JasperReports externally.
 -   Keep volumes managed and monitored.
 
 ------------------------------------------------------------------------
 
 ## 👤 **Author**
 
-**Eng. Malek Al-edresi**\
-Oracle APEX & Database Developer\
+**Eng. Malek Al-edresi**
+Oracle APEX & Database Developer
 AI Vector Search • Flutter • DevOps Tools
 
 
