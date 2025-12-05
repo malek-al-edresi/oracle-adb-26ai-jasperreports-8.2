@@ -1,184 +1,165 @@
-# **Enterprise-Grade Docker Compose Environment for Oracle ADB Free 26ai & JasperReports Server 8.2**
+<!-- Header Image -->
+<p align="center">
+  <img src="./image/Screenshot_20251119_221725.png" alt="Environment Overview" width="750">
+</p>
 
-A fully engineered, production-style container environment that
-seamlessly integrates **Oracle Autonomous Database Free (26ai)** with
-**JasperReports Server 8.2**.\
-Designed for developers, data engineers, and reporting teams who require
-a reliable, scalable, and secure local environment for building
-enterprise applications, analytics, or APEX-driven reporting solutions.
+# Enterprise Docker Environment  
+## Oracle ADB Free 26ai + JasperReports Server 8.2
 
-------------------------------------------------------------------------
+This repository provides a **local, container-based environment** for:
 
-## 🎯 **Purpose of This Environment**
+- Running **Oracle Autonomous Database Free 26ai** in a Docker container  
+- Running **JasperReports Server 8.2 (Community Edition)** with MariaDB  
+- Preparing the foundation to connect JasperReports to Oracle as a reporting data source  
 
-This setup provides:
+The project is organized as two main stacks:
 
--   A complete **local Oracle ADB experience** (SQL, REST, Mongo APIs).
--   A fully functional **JasperReports Server** for report design,
-    scheduling, and export.
--   Persistent storage across database and report servers.
--   A stable structure suitable for **APEX**, **ORDS**, and **enterprise
-    reporting workflows**.
--   Clean, organized configuration following DevOps best practices.
+- `oracle-adb-container-26ai/` → Oracle ADB Free 26ai  
+- `jasper_report/` → JasperReports Server + MariaDB  
+- `image/` → Screenshots and reference images  
 
-------------------------------------------------------------------------
+---
 
-## 🏗️ **Architecture Overview**
+## 📂 Repository Structure
 
-    +-------------------------+         +----------------------------+
-    |  Oracle ADB Free 26ai   | <-----> | JasperReports Server 8.2   |
-    |   - ATP workload        |         |   - Reporting engine       |
-    |   - SQL / REST / Mongo  |         |   - Web UI                 |
-    |   - Persistent volumes  |         |   - Scheduled jobs         |
-    +-------------------------+         +----------------------------+
+```text
+Docker/
+├── README.md
+├── image/
+│   └── Screenshot_20251119_221725.png
+│
+├── oracle-adb-container-26ai/
+│   └── docker-compose.yaml
+│
+└── jasper_report/
+    ├── docker-compose.yaml
+    └── ojdbc8.jar/
+```
 
-           Shared External Docker Network (oracle-adb-network)
+---
 
-------------------------------------------------------------------------
+## 🧱 1. Oracle ADB Free 26ai Stack
 
-## 🗄️ **1. Oracle ADB Free 26ai Service**
+Path: `./oracle-adb-container-26ai/docker-compose.yaml`
 
-A fully containerized version of Oracle's Autonomous Database (Free
-tier), ideal for development, learning, and integration.
+This stack runs an Oracle ADB Free 26ai container:
 
-### **Features**
-
--   Autonomous Transaction Processing (ATP) workload
--   Secure wallet-based authentication
--   Exposed ports for SQL, REST, and Mongo APIs
--   Full data persistence using named Docker volumes
--   Auto-restart for long-running development sessions
-
-### **Exposed Ports**
-
-  Host    Container   Purpose
-  ------- ----------- ----------------------------
-  1521    1522        SQL\*Net (Oracle Database)
-  1522    1522        Alternate SQL port
-  8443    8443        HTTPS Admin
-  27017   27017       Mongo-compatible API
-  8888    8888        Utility services
-
-### **Environment Variables**
-
--   `WORKLOAD_TYPE=ATP`
--   `WALLET_PASSWORD=Malek7788Wallet`
--   `ADMIN_PASSWORD=Malek7788Adb`
-
-> ⚠️ **Always change these before production use.**
-
-### **Persistent Volumes**
-
--   `oracle-adb-data` → Database storage
--   `oracle-adb-logs` → Diagnostic logs
--   `/home/eng-malek/oracle_wallet` → Oracle Wallet mount
-
-------------------------------------------------------------------------
-
-## 🗃️ **2. JasperReports Server 8.2 Service**
-
-A powerful enterprise reporting engine capable of generating **PDF,
-Excel, Word, HTML** and more --- fully integrated with databases via
-JDBC or REST.
-
-### **Features**
-
--   Web-based report designer
--   Role-based access control
--   Advanced scheduling system
--   Integration with Oracle ADB
--   Export to multiple formats
--   REST API for automation
-
-### **Typical Ports**
-
-  Host   Container   Purpose
-  ------ ----------- -------------------------------------
-  8080   8080        JasperReports Web UI
-  5432   5432        Internal DB (depends on base image)
-
-> If your exact container uses different ports, I can update them for
-> you.
-
-------------------------------------------------------------------------
-
-## 🔗 **Docker Network**
-
-Both containers communicate through an external, pre-created Docker
-network:
-
-``` yaml
+```yaml
+image: ghcr.io/oracle/adb-free:latest-26ai
+container_name: oracle-adb-26ai
+hostname: oracle-adb
+networks:
+  - oracle-adb-network
+ports:
+  - "1521:1522"
+  - "1522:1522"
+  - "8443:8443"
+  - "27017:27017"
+  - "8888:8888"
+...
+volumes:
+  oracle-adb-data:
+    external: true
+  oracle-adb-logs:
+    external: true
 networks:
   oracle-adb-network:
     external: true
 ```
 
-Create it (if not already created):
+### ▶️ Start Oracle ADB
 
-``` bash
+Before running the stack:
+
+```bash
 docker network create oracle-adb-network
-```
-
-------------------------------------------------------------------------
-
-## 💾 **Persistent Volumes Setup**
-
-For clean and reliable data storage:
-
-``` bash
 docker volume create oracle-adb-data
 docker volume create oracle-adb-logs
-docker volume create jasperreports_data
 ```
 
-------------------------------------------------------------------------
+Then start:
 
-## ▶️ **How to Use**
-
-### **Start all services**
-
-``` bash
-docker-compose up -d
+```bash
+cd oracle-adb-container-26ai
+docker compose up -d
 ```
 
-### **Stop and remove containers**
+---
 
-``` bash
-docker-compose down
+## 📊 2. JasperReports Server + MariaDB Stack
+
+Path: `./jasper_report/docker-compose.yaml`
+
+```yaml
+services:
+  web:
+    container_name: jasperreports
+    image: 8d40ab0e0087
+    restart: always  
+    depends_on:
+      - db
+    ports:
+      - "9091:8080"
+    volumes:
+      - 'jasperreports_data:/bitnami/jasperreports'
+    environment:
+      - JASPERREPORTS_USERNAME=jasperadmin
+      - JASPERREPORTS_PASSWORD=jasperadmin
+      - JASPERREPORTS_DATABASE_HOST=mariadb
+      - JASPERREPORTS_DATABASE_PORT_NUMBER=3306
+...
+  db:
+    image: bitnami/mariadb:latest
+    environment:
+      - MARIADB_USER=bn_jasperreports
+      - MARIADB_PASSWORD=bitnami
+      - MARIADB_DATABASE=bitnami_jasperreports    
+    volumes:
+      - mariadb_data:/bitnami/mariadb
 ```
 
-### **Tail logs**
+### ▶️ Start JasperReports
 
-``` bash
-docker logs -f oracle-adb-26ai
+```bash
+cd jasper_report
+docker compose up -d
 ```
 
-------------------------------------------------------------------------
+### 🌐 Access JasperReports
 
-## 📌 **Recommended Folder Structure**
+```
+http://localhost:9091/jasperserver
+```
 
-    project-root/
-    │
-    ├── docker-compose.yaml
-    ├── README.md
-    └── wallet/  (Oracle Wallet)
+Default login:
+- **username:** jasperadmin  
+- **password:** jasperadmin  
 
-------------------------------------------------------------------------
+---
 
-## 📝 **Best Practices**
+## 🔗 Connecting JasperReports to Oracle ADB
 
--   Use **strong passwords** and rotate wallet files regularly.
--   Never expose database ports directly on production networks.
--   Use Nginx or Traefik if exposing JasperReports externally.
--   Keep volumes managed and monitored.
+To use Oracle ADB as a reporting datasource:
 
-------------------------------------------------------------------------
+### 1️⃣ Add Oracle JDBC driver  
+Place `ojdbc8.jar` inside:
 
-## 👤 **Author**
+```
+Docker/jasper_report/ojdbc8.jar/
+```
 
-**Eng. Malek Al-edresi**
-Oracle APEX & Database Developer
-AI Vector Search • Flutter • DevOps Tools
+### 2️⃣ Create a Data Source in JasperReports
 
+Connection URL example:
 
+```text
+jdbc:oracle:thin:@oracle-adb-26ai:1522/ORCLPDB1
+```
 
+---
+
+## 👤 Author
+
+**Eng. Malek Mohammed Al-edresi**  
+Oracle APEX & Database Developer  
+AI • Vector Search • DevOps • Reporting
